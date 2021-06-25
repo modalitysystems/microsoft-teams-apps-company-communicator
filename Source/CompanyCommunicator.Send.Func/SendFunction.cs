@@ -233,6 +233,19 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
 
             AdaptiveCard card = JsonConvert.DeserializeObject<AdaptiveCard>(notification.Content);
 
+            card = this.AddReportingImageToCard(message, card);
+
+            var adaptiveCardAttachment = new Attachment()
+            {
+                ContentType = AdaptiveCardContentType,
+                Content = card,
+            };
+
+            return MessageFactory.Attachment(adaptiveCardAttachment);
+        }
+
+        private AdaptiveCard AddReportingImageToCard(SendQueueMessageContent message, AdaptiveCard card)
+        {
             var reportingImageUrl = new Uri(this.reportingFunctionUrl, UriKind.RelativeOrAbsolute);
             reportingImageUrl = UriExtensions.AddParameter(reportingImageUrl, "notification", message.NotificationId);
             reportingImageUrl = UriExtensions.AddParameter(reportingImageUrl, "random", Guid.NewGuid().ToString());
@@ -243,14 +256,7 @@ namespace Microsoft.Teams.Apps.CompanyCommunicator.Send.Func
                 Size = AdaptiveImageSize.Auto,
                 AltText = string.Empty,
             });
-
-            var adaptiveCardAttachment = new Attachment()
-            {
-                ContentType = AdaptiveCardContentType,
-                Content = card,
-            };
-
-            return MessageFactory.Attachment(adaptiveCardAttachment);
+            return card;
         }
     }
 }
